@@ -146,6 +146,13 @@ enum class ServerFeature(val id: String)
      */
     @JvmStatic
     fun fromOrdinal(ordinal: Int): ServerFeature? = if (ordinal !in 0..<ENTRY_COUNT) null else ServerFeature.entries[ordinal]
+
+    /**
+     * Gets a collection of all server features
+     * @return collection of all server features
+     */
+    @JvmStatic
+    fun all(): Collection<ServerFeature> = ServerFeature.entries
   }
 
   /**
