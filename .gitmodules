@@ -1,3 +1,4 @@
 [submodule "payloadcrafter"]
 	path = payloadcrafter
 	url = https://github.com/ieatglu3/payloadcrafter
+	branch = 1.0
