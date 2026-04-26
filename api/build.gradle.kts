@@ -1,16 +1,18 @@
 plugins {
   kotlin("jvm") version "1.9.20"
   id("java")
+  id("maven-publish")
 }
 
+var jarName = "animatium-api"
 group = "com.github.ieatglu3"
 version = "1.0.0"
 
 repositories {
   mavenCentral()
-  maven { url = uri("https://repo.maven.apache.org/maven2/") }
-  maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
-  maven { url = uri("https://repo.codemc.io/repository/maven-snapshots/") }
+  maven("https://repo.maven.apache.org/maven2/")
+  maven("https://repo.codemc.io/repository/maven-releases/")
+  maven("https://repo.codemc.io/repository/maven-snapshots/")
 }
 
 dependencies {
@@ -21,6 +23,34 @@ dependencies {
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.test {
-  useJUnitPlatform()
+java {
+  withSourcesJar()
+  withJavadocJar()
+}
+
+tasks {
+
+  withType<JavaCompile> {
+    options.encoding = "UTF-8"
+  }
+
+  jar {
+    archiveBaseName = jarName
+    version = project.version
+  }
+
+  test {
+    useJUnitPlatform()
+  }
+}
+
+publishing {
+  publications {
+    create<MavenPublication>("mavenJava") {
+      from(components["java"])
+      groupId = project.group.toString()
+      artifactId = jarName
+      version = project.version.toString()
+    }
+  }
 }

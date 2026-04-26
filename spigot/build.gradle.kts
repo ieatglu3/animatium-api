@@ -2,6 +2,7 @@ plugins {
   id("java")
   kotlin("jvm") version "1.9.20"
   id("com.gradleup.shadow") version "9.2.2"
+  id("maven-publish")
 }
 
 val jarName = "animatium-spigot"
@@ -12,9 +13,9 @@ version = "1.0.0"
 repositories {
   mavenCentral()
   maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-  maven { url = uri("https://repo.maven.apache.org/maven2/") }
-  maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
-  maven { url = uri("https://repo.codemc.io/repository/maven-snapshots/") }
+  maven("https://repo.maven.apache.org/maven2/")
+  maven("https://repo.codemc.io/repository/maven-releases/")
+  maven("https://repo.codemc.io/repository/maven-snapshots/")
 }
 
 dependencies {
@@ -27,16 +28,15 @@ dependencies {
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+java {
+  withSourcesJar()
+  withJavadocJar()
+}
+
 tasks {
 
   withType<JavaCompile> {
     options.encoding = "UTF-8"
-  }
-
-  shadowJar {
-    archiveBaseName = jarName
-    version = project.version
-    archiveClassifier = "shaded"
   }
 
   jar {
@@ -47,5 +47,16 @@ tasks {
 
   test {
     useJUnitPlatform()
+  }
+}
+
+publishing {
+  publications {
+    create<MavenPublication>("mavenJava") {
+      from(components["java"])
+      groupId = project.group.toString()
+      artifactId = jarName
+      version = project.version.toString()
+    }
   }
 }
