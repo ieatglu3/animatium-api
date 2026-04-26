@@ -1,5 +1,5 @@
 # Animatium API
-Thread-safe Kotlin library for providing a server-side API access for the Animatium client mod.
+Library for providing a server-side API for the Animatium minecraft mod.
 
 ---
 ## Usage
