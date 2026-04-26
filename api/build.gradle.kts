@@ -1,5 +1,6 @@
 plugins {
   kotlin("jvm") version "1.9.20"
+  id("com.gradleup.shadow") version "9.2.2"
   id("java")
   id("maven-publish")
 }
@@ -37,6 +38,7 @@ tasks {
   jar {
     archiveBaseName = jarName
     version = project.version
+    dependsOn(shadowJar)
   }
 
   test {
