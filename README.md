@@ -1,12 +1,12 @@
-# Animatium API
+# animatium-api
 Library for providing a server-side API for the Animatium minecraft mod.
 
----
-## Usage
+[![Animatium](https://img.shields.io/badge/Animatium-Mod-4B8BBE?style=for-the-badge)](https://github.com/Legacy-Visuals-Project/Animatium)
+[![PacketEvents](https://img.shields.io/badge/PacketEvents-2.11.1-4B8BBE?style=for-the-badge)](https://github.com/retrooper/packetevents)
+
+## API Usage
 
 ### Access Player Information
-
-Retrieve and manage players using the player registry:
 
 ```java
 import java.util.UUID;
@@ -42,7 +42,7 @@ if (api.hasAnimatiumInfo(playerUUID)) {
 }
 ```
 
-### Manage Server Features
+### Manage Mod Features
 
 ```java
 import com.github.ieatglu3.animatiumapi.ServerFeature;
