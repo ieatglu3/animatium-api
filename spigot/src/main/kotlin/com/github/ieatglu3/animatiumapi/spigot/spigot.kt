@@ -3,6 +3,8 @@ package com.github.ieatglu3.animatiumapi.spigot
 import com.github.ieatglu3.animatiumapi.AnimatiumAPI
 import com.github.ieatglu3.animatiumapi.AnimatiumPlayer
 import com.github.ieatglu3.animatiumapi.AnimatiumPlayerRegistry
+import com.github.ieatglu3.animatiumapi.ModVersion
+import com.github.ieatglu3.animatiumapi.ModVersionMajor
 import com.github.ieatglu3.animatiumapi.protocol.AnimatiumPayloadRegistry
 import com.github.ieatglu3.animatiumapi.protocol.serverbound.PayloadServerboundInfo
 import com.github.ieatglu3.animatiumapi.spigot.event.AnimatiumPlayerInfoEvent
@@ -34,7 +36,13 @@ class InternalPayloadListener(private val playerMap: ConcurrentHashMap<UUID, Ani
     runSync {
       val bukkitPlayer = Bukkit.getPlayer(user.uuid)
       if (bukkitPlayer != null)
-        fireEvent(AnimatiumPlayerInfoEvent(AnimatiumPlayer(user, (payload as PayloadServerboundInfo).version), bukkitPlayer))
+      {
+        val payloadVersion = (payload as PayloadServerboundInfo).version
+        val modVersion = ModVersion.fromRaw(payloadVersion)
+        if (modVersion.major == ModVersionMajor.Unknown)
+          Bukkit.getLogger().warning("received animatium info payload with unknown mod version $payloadVersion from player ${bukkitPlayer.name} (${bukkitPlayer.uniqueId})")
+        fireEvent(AnimatiumPlayerInfoEvent(AnimatiumPlayer(user, modVersion), bukkitPlayer))
+      }
     }
   }
 }

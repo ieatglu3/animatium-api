@@ -1,12 +1,13 @@
 package com.github.ieatglu3.animatiumapi
 
-import com.github.ieatglu3.animatiumapi.protocol.clientbound.PayloadClientboundSetServerFeatures
+import com.github.ieatglu3.animatiumapi.protocol.clientbound.PayloadClientboundSetServerFeaturesV2
+import com.github.ieatglu3.animatiumapi.protocol.clientbound.PayloadClientboundSetServerFeaturesV3
 import com.github.retrooper.packetevents.protocol.player.User
-import java.lang.invoke.MethodHandles
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Logger
+import kotlin.math.floor
 
 /**
  * Player registry for animatium players (thread-safe)
@@ -109,6 +110,37 @@ interface AnimatiumAPI
 }
 
 /**
+ * The major version of the mod
+ */
+enum class ModVersionMajor
+{
+  V2,
+  V3,
+  Unknown
+}
+
+/**
+ * A mod version, consisting of a major version and a minor version
+ * @param major the major version (e.g. V2, V3)
+ * @param minor the minor version (e.g. 0.1, 0.2)
+ */
+class ModVersion(val major: ModVersionMajor, val minor: Double)
+{
+  companion object {
+    fun fromRaw(raw: Double): ModVersion
+    {
+      val major = when (floor(raw).toInt())
+      {
+        2 -> ModVersionMajor.V2
+        3 -> ModVersionMajor.V3
+        else -> ModVersionMajor.Unknown
+      }
+      return ModVersion(major, raw - floor(raw))
+    }
+  }
+}
+
+/**
  * A server feature that can be enabled or disabled for a player using Animatium
  */
 enum class ServerFeature(val id: String)
@@ -165,16 +197,20 @@ enum class ServerFeature(val id: String)
 /**
  * An animatium player (thread-safe)
  */
-class AnimatiumPlayer(private val handle: User, private val version: Double)
+class AnimatiumPlayer(private val handle: User, private val version: ModVersion)
 {
 
   private val enabledFeatures = ConcurrentHashMap.newKeySet<ServerFeature>()
+
+  companion object {
+    val LOGGER = Logger.getLogger(AnimatiumPlayer::class.java.name)
+  }
 
   /**
    * Gets the Animatium version the player is using
    * @return version
    */
-  fun version(): Double = this.version
+  fun version(): ModVersion = this.version
 
   /**
    * Gets the player's name.
@@ -257,5 +293,13 @@ class AnimatiumPlayer(private val handle: User, private val version: Double)
    */
   fun enabledFeatures(): Set<ServerFeature> = HashSet(this.enabledFeatures)
 
-  private fun sendEnabledFeatures() = PayloadClientboundSetServerFeatures(this.enabledFeatures()).send(this.handle)
+  private fun sendEnabledFeatures()
+  {
+    when (this.version.major)
+    {
+      ModVersionMajor.V2 -> PayloadClientboundSetServerFeaturesV2(this.enabledFeatures()).send(this.handle)
+      ModVersionMajor.V3 -> PayloadClientboundSetServerFeaturesV3(this.enabledFeatures()).send(this.handle)
+      else -> LOGGER.warning("unknown Animatium major version ${this.version.major} for player ${this.name()} (${this.uuid()}), cannot send enabled features")
+    }
+  }
 }

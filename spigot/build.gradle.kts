@@ -8,7 +8,7 @@ plugins {
 val jarName = "animatium-spigot"
 
 group = "com.github.ieatglu3"
-version = "2.0.0"
+version = "1.0.0"
 
 repositories {
   mavenCentral()
